@@ -11,11 +11,13 @@ typedef struct node {
 } node;
 
 typedef struct graph {
-    node *nodes;
+    node **nodes;
 } graph;
 
 /* Structure functions */
-graph* initGraph(int V, int E);
+graph* initGraph(int V);
+node* newNode(int V);
+void addEdge(graph* g, int u, int v);
 
 
 #endif
