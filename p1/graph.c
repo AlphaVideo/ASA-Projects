@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "graph.h"
 
+int id = 1;
+
 /* Creates a graph struct with V vertexes */
 graph* initGraph(int V)
 {
@@ -21,13 +23,19 @@ graph* initGraph(int V)
 /* Aux function that creates a "blank" node */
 node* newNode(int V)
 {
+    int i;
+    V++; /* Starting index is seen as 1 */
     node *new = malloc(sizeof(node));
+    new->id = id++;
     new->outDegree = 0;
     new->inDegree = 0;
     new->visited = 0;
     new->relaxed = 0;
     new->distance = INF;
     new->edges = malloc(sizeof(node*) * V);
+
+    for(i = 0; i < V; i++)
+        new->edges[i] = NULL;
 
     return new;    
 }

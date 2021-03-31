@@ -3,6 +3,7 @@
 #define INF -1
 
 typedef struct node {
+    int id;
     int inDegree;
     int outDegree;
     int visited;
