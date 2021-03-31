@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "graph.h"
 
+/* Creates a graph struct with V vertexes */
 graph* initGraph(int V)
 {
     int i;
@@ -16,11 +17,14 @@ graph* initGraph(int V)
     return new;
 }
 
+
+/* Aux function that creates a "blank" node */
 node* newNode(int V)
 {
     node *new = malloc(sizeof(node));
     new->outDegree = 0;
     new->inDegree = 0;
+    new->visited = 0;
     new->relaxed = 0;
     new->distance = INF;
     new->edges = malloc(sizeof(node*) * V);
@@ -28,9 +32,33 @@ node* newNode(int V)
     return new;    
 }
 
+
+/* Adds edge information between two nodes.
+Updates in and out degrees. */
 void addEdge(graph* g, int u, int v)
 {
     g->nodes[u]->outDegree++;
     g->nodes[v]->inDegree++;
     g->nodes[u]->edges[v] = g->nodes[v];
+}
+
+/* Free stack head, replaces with next in line */
+stack *pop(stack* head)
+{
+    stack* temp = head->next;
+    free(head->n);
+    free(head);
+
+    return temp;
+}
+
+/*Adds node to the LIFO */
+stack *push(stack* head, node* n)
+{
+    stack* new = malloc(sizeof(stack));
+    new->n = malloc(sizeof(node));
+    new->n = n;
+    new->next = head;
+
+    return new;
 }

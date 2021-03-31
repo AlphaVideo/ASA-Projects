@@ -16,6 +16,9 @@ void setSources(graph* Graph);
 int main()
 {
     int i;
+    stack *topologicalStack = malloc(sizeof(stack));
+    topologicalStack->n = NULL;
+    topologicalStack->next = NULL;
 
     scanf("%d %d", &V, &E);
     graph *Graph = initGraph(V);
@@ -37,6 +40,9 @@ int main()
     /* Nodes with inDegree = 0 are sources and will be counted for the output */
     setSources(Graph);
 
+    topologicalStack = topologicalSort(Graph, topologicalStack);
+
+
     return 0;
 }
 
@@ -53,4 +59,11 @@ void setSources(graph* g)
             sources++;
         }
     }
+}
+
+
+/* Returns a stack with the topological order of the given graph. */
+stack* topologicalSort(graph *g, stack* stk)
+{
+
 }
