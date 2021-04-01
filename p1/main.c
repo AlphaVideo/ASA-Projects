@@ -6,23 +6,20 @@
 
 int V; /* Number of vertexes */
 int E; /* Number of edges */
-int sources = 0;
+int nSources = 0;
 
 /* Functions */
 
-void setSources(graph* Graph);
-stack* topologicalSort(graph *g, stack* stk);
+queue* setSources(graph* g, queue* sources);
+void topologicalSort(graph *g, queue* sources);
 
 
 int main()
 {
     int i;
-    stack *topologicalStack = malloc(sizeof(stack));
-    topologicalStack->n = NULL;
-    topologicalStack->next = NULL;
-
     scanf("%d %d", &V, &E);
     graph *Graph = initGraph(V);
+    queue *sources = NULL;
 
     /* Input parsing */
     for(i = 0; i < E; i++)
@@ -39,23 +36,25 @@ int main()
     }
 
     /* Nodes with inDegree = 0 are sources and will be counted for the output */
-    setSources(Graph);
+    sources = setSources(Graph, sources);
+    /*topologicalSort(Graph, sources);*/
+    
+    dequeue(sources);
 
-    topologicalStack = topologicalSort(Graph, topologicalStack);
-
-    for(i = 1; i <= V+1; i++)
+    while(sources != NULL)
     {
-        printf("%d", topologicalStack->n->id);
-        topologicalStack = pop(topologicalStack);
+        
+        printf("%d\n", sources->n->id);
+        sources = sources->next;
+        
     }
-
 
     return 0;
 }
 
 /* Searches the whole graph for nodes with inDegree = 0.
 Sets distance to 0 and increments global counter. */
-void setSources(graph* g)
+queue* setSources(graph* g, queue* sources)
 {
     int i;
     for(i = 1; i <= V; i++)
@@ -63,49 +62,36 @@ void setSources(graph* g)
         if(g->nodes[i]->inDegree == 0)
         {
             g->nodes[i]->distance = 0;
-            sources++;
+            nSources++;
+            sources = enqueue(sources, g->nodes[i]);
         }
     }
+
+    return sources;
 }
 
 
 /* Returns a stack with the topological order of the given graph. */
-stack* topologicalSort(graph *g, stack* stk)
+void topologicalSort(graph *g, queue* sources)
 {
-    int i, j;
-    stack *toProcess= malloc(sizeof(stack) * V);
-    toProcess->n = NULL;
-    toProcess->next = NULL;
+    int i;
 
-    for(i = 1; i <= V; i++)
+    /* The processing queue will start out with the sources */
+    queue *toProcess = sources;
+
+
+    /* While stack isn't empty */
+    while(toProcess != NULL)
     {
-        /* Apply algorithm to every source */
-        if(g->nodes[i]->inDegree == 0)
+        node *v = dequeue(toProcess);
+        printf("%d\n", v->id);
+
+
+        /* Handles all adjacent nodes later by putting them in toProcess */
+        for(i = 0 ; i < v->outDegree; i++)
         {
-            toProcess = push(toProcess, g->nodes[i]); /* Source goes first */
-
-            /* While stack isn't empty */
-            while(toProcess->n != NULL)
-            {
-                node *v = toProcess->n;
-                toProcess = pop(toProcess);
-
-                /* Remove from processing stack and skip if already visited */
-                if(v->visited)
-                    continue;
-
-                v->visited = 1;
-                stk = push(stk, v); /* Pushes into the sorted stack */
-
-                /* Handles all adjacent nodes later by putting them in toProcess */
-                for(j = 1; j <= V; j++)
-                {
-                    if(v->edges[i] != NULL && !v->edges[i]->visited)
-                        toProcess = push(toProcess, v->edges[i]);
-                }
-            }
+            if(--v->edges[i]->inDegree == 0)
+                toProcess = enqueue(toProcess, v->edges[i]);
         }
     }
-
-    return stk;
 }

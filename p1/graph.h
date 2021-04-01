@@ -9,7 +9,7 @@ typedef struct node {
     int visited;
     int relaxed;
     int distance;
-    struct node* *edges;
+    struct node **edges;
 } node;
 
 typedef struct graph {
@@ -21,12 +21,19 @@ typedef struct stack {
     struct stack *next;
 } stack;
 
+typedef struct queue {
+    node *n;
+    struct queue *next;
+} queue;
+
 /* Structure functions */
 graph* initGraph(int V);
 node* newNode(int V);
 void addEdge(graph* g, int u, int v);
 stack *pop(stack* head);
 stack *push(stack* head, node* node);
+queue *enqueue(queue* head, node* n);
+node *dequeue(queue* head);
 
 
 #endif

@@ -23,7 +23,6 @@ graph* initGraph(int V)
 /* Aux function that creates a "blank" node */
 node* newNode(int V)
 {
-    int i;
     V++; /* Starting index is seen as 1 */
     node *new = malloc(sizeof(node));
     new->id = id++;
@@ -32,10 +31,7 @@ node* newNode(int V)
     new->visited = 0;
     new->relaxed = 0;
     new->distance = INF;
-    new->edges = malloc(sizeof(node*) * V);
-
-    for(i = 0; i < V; i++)
-        new->edges[i] = NULL;
+    new->edges = NULL;
 
     return new;    
 }
@@ -47,14 +43,25 @@ void addEdge(graph* g, int u, int v)
 {
     g->nodes[u]->outDegree++;
     g->nodes[v]->inDegree++;
-    g->nodes[u]->edges[v] = g->nodes[v];
+
+    if(g->nodes[u]->edges == NULL)
+    {
+        g->nodes[u]->edges = malloc(sizeof(node*) * g->nodes[u]->outDegree);
+        g->nodes[u]->edges[0] = g->nodes[v];
+    }
+    else
+    {
+        g->nodes[u]->edges = realloc(g->nodes[u]->edges, g->nodes[u]->outDegree);
+        g->nodes[u]->edges[g->nodes[u]->outDegree - 1] = g->nodes[v];
+    }
+
+    
 }
 
 /* Free stack head, replaces with next in line */
 stack *pop(stack* head)
 {
     stack* temp = head->next;
-    free(head->n);
     free(head);
 
     return temp;
@@ -64,9 +71,64 @@ stack *pop(stack* head)
 stack *push(stack* head, node* n)
 {
     stack* new = malloc(sizeof(stack));
-    new->n = malloc(sizeof(node));
     new->n = n;
     new->next = head;
 
     return new;
+}
+
+/*Adds a node to the FIFO*/
+queue *enqueue(queue* head, node* n)
+{
+    queue* q = head;
+    queue* temp = NULL;
+
+    if(head == NULL)
+    {
+        head = malloc(sizeof(queue));
+        head->next = NULL;
+        head->n = n;
+        return head;
+    }
+
+    while(q->next != NULL)
+    {
+        temp = q;
+        q = q->next;
+    }
+
+    temp = malloc(sizeof(queue));
+    temp->next = q;
+    temp->n = n;
+
+    return temp;
+}
+
+/*Returns node at the front*/
+node *dequeue(queue* head)
+{
+    queue* q = head;
+    queue* temp = NULL;
+    node* res;
+
+    while(q->next != NULL)
+    {
+        temp = q;
+        q = q->next;
+    }
+
+    /* Queue only has 1 */
+    if(temp == NULL)
+    {
+        res = q->n;
+        free(q);
+    }
+    else
+    {
+        temp->next = NULL;
+        res = q->n;
+        free(q);
+    }
+
+    return res;
 }
