@@ -33,7 +33,7 @@ void addEdge(graph* g, int u, int v);
 stack *pop(stack* head);
 stack *push(stack* head, node* node);
 queue *enqueue(queue* head, node* n);
-node *dequeue(queue* head);
+queue *dequeue(queue* head);
 
 
 #endif

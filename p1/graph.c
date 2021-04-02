@@ -80,55 +80,31 @@ stack *push(stack* head, node* n)
 /*Adds a node to the FIFO*/
 queue *enqueue(queue* head, node* n)
 {
-    queue* q = head;
-    queue* temp = NULL;
-
-    if(head == NULL)
-    {
-        head = malloc(sizeof(queue));
-        head->next = NULL;
-        head->n = n;
-        return head;
-    }
-
-    while(q->next != NULL)
-    {
-        temp = q;
-        q = q->next;
-    }
-
-    temp = malloc(sizeof(queue));
-    temp->next = q;
-    temp->n = n;
-
-    return temp;
+    queue* new = (queue*) malloc(sizeof(struct node));
+    new->n = n;
+    new->next = head;
+    return new;
 }
 
 /*Returns node at the front*/
-node *dequeue(queue* head)
+queue *dequeue(queue* head)
 {
-    queue* q = head;
-    queue* temp = NULL;
-    node* res;
 
-    while(q->next != NULL)
+    queue* temp = NULL, *prev;
+
+    for (temp = head, prev = NULL; temp != NULL; temp = temp->next)
     {
-        temp = q;
-        q = q->next;
+        if (temp == head)
+        {
+            head = temp->next;
+        }
+        else
+        {
+            prev->next = temp->next;
+        }
+        
     }
 
-    /* Queue only has 1 */
-    if(temp == NULL)
-    {
-        res = q->n;
-        free(q);
-    }
-    else
-    {
-        temp->next = NULL;
-        res = q->n;
-        free(q);
-    }
-
-    return res;
+    return head;
+    
 }

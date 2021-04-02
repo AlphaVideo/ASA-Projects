@@ -7,6 +7,7 @@
 int V; /* Number of vertexes */
 int E; /* Number of edges */
 int nSources = 0;
+queue* head = NULL, *tail = NULL; 
 
 /* Functions */
 
@@ -38,14 +39,12 @@ int main()
     /* Nodes with inDegree = 0 are sources and will be counted for the output */
     sources = setSources(Graph, sources);
     /*topologicalSort(Graph, sources);*/
-    
-    dequeue(sources);
 
     while(sources != NULL)
     {
         
         printf("%d\n", sources->n->id);
-        sources = sources->next;
+        sources = dequeue(head);
         
     }
 
@@ -78,6 +77,12 @@ void topologicalSort(graph *g, queue* sources)
 
     /* The processing queue will start out with the sources */
     queue *toProcess = sources;
+
+    while (sources != NULL)
+    {
+        printf("CHEGUEI %d", sources->n->id);
+    }
+    
 
 
     /* While stack isn't empty */
