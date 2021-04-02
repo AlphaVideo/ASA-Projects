@@ -24,16 +24,20 @@ typedef struct stack {
 typedef struct queue {
     node *n;
     struct queue *next;
+    struct queue *previous;
 } queue;
 
 /* Structure functions */
 graph* initGraph(int V);
 node* newNode(int V);
 void addEdge(graph* g, int u, int v);
+
 stack *pop(stack* head);
 stack *push(stack* head, node* node);
+
 queue *enqueue(queue* head, node* n);
 queue *dequeue(queue* head);
+node *getQueueNode(queue* head);
 
 
 #endif

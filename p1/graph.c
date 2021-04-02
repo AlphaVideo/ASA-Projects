@@ -3,6 +3,8 @@
 #include "graph.h"
 
 int id = 1;
+int queueInit = 0;
+queue *tail = NULL;
 
 /* Creates a graph struct with V vertexes */
 graph* initGraph(int V)
@@ -79,32 +81,55 @@ stack *push(stack* head, node* n)
 
 /*Adds a node to the FIFO*/
 queue *enqueue(queue* head, node* n)
-{
+{   
     queue* new = (queue*) malloc(sizeof(struct node));
     new->n = n;
     new->next = head;
+    new->previous = NULL;
+    
+    /* Second from the back is updated */
+    if(head != NULL)
+        head->previous = new;
+
+    /* Starts up tail */
+    if(!queueInit)
+    {
+        tail = new;
+        queueInit = 1;
+    }
+
     return new;
 }
 
 /*Returns node at the front*/
 queue *dequeue(queue* head)
 {
+    queue *prev;
 
-    queue* temp = NULL, *prev;
-
-    for (temp = head, prev = NULL; temp != NULL; temp = temp->next)
+    /* When there's only 1 element */
+    if(tail == head)
     {
-        if (temp == head)
-        {
-            head = temp->next;
-        }
-        else
-        {
-            prev->next = temp->next;
-        }
-        
+        free(head);
+        return NULL;
     }
+    
+    prev = tail->previous;
+    free(tail);
+    prev->next = NULL;
+
+    tail = prev;
 
     return head;
-    
+}
+
+node *getQueueNode(queue* head)
+{
+    node *u;
+    if(tail != NULL)
+    {
+        u = tail->n;
+        return u;
+    }
+    else
+        return NULL;
 }

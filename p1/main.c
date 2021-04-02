@@ -7,7 +7,6 @@
 int V; /* Number of vertexes */
 int E; /* Number of edges */
 int nSources = 0;
-queue* head = NULL, *tail = NULL; 
 
 /* Functions */
 
@@ -42,10 +41,12 @@ int main()
 
     while(sources != NULL)
     {
-        
-        printf("%d\n", sources->n->id);
-        sources = dequeue(head);
-        
+        node* v;
+        v = getQueueNode(sources);
+        sources = dequeue(sources);
+        if(v != NULL)
+            printf("%d\n", v->id);
+
     }
 
     return 0;
