@@ -6,7 +6,6 @@ typedef struct node {
     int id;
     int inDegree;
     int outDegree;
-    int visited;
     int relaxed;
     int distance;
     struct node **edges;

@@ -30,7 +30,6 @@ node* newNode(int V)
     new->id = id++;
     new->outDegree = 0;
     new->inDegree = 0;
-    new->visited = 0;
     new->relaxed = 0;
     new->distance = INF;
     new->edges = NULL;

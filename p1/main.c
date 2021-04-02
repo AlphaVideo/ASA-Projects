@@ -6,12 +6,14 @@
 
 int V; /* Number of vertexes */
 int E; /* Number of edges */
-int nSources = 0;
+int nSources = 0; /* Output 1 */
+int longest = 0; /* Output 2 */
 
 /* Functions */
 
 queue* setSources(graph* g, queue* sources);
-void topologicalSort(graph *g, queue* sources);
+int* topologicalSort(graph *g, queue* sources);
+int getLongest(graph *g, int *topSorted);
 
 
 int main()
@@ -20,6 +22,7 @@ int main()
     scanf("%d %d", &V, &E);
     graph *Graph = initGraph(V);
     queue *sources = NULL;
+    int *topSorted = NULL;
 
     /* Input parsing */
     for(i = 0; i < E; i++)
@@ -37,7 +40,11 @@ int main()
 
     /* Nodes with inDegree = 0 are sources and will be counted for the output */
     sources = setSources(Graph, sources);
-    topologicalSort(Graph, sources);
+    topSorted = topologicalSort(Graph, sources);
+
+    longest = getLongest(Graph, topSorted);
+
+    printf("%d %d\n", nSources, longest);
 
     return 0;
 }
@@ -55,16 +62,20 @@ queue* setSources(graph* g, queue* sources)
             nSources++;
             sources = enqueue(sources, g->nodes[i]);
         }
+        else
+            g->nodes[i]->distance = INF;
     }
 
     return sources;
 }
 
 
-/* Returns a stack with the topological order of the given graph. */
-void topologicalSort(graph *g, queue* sources)
+/* Returns an index array with the topological order of the given graph. 
+Utilizes Kahn's algorithm. */
+int* topologicalSort(graph *g, queue* sources)
 {
-    int i;
+    int i, id = 0;
+    int *sorted = malloc(sizeof(int)*V);
 
     /* The processing queue will start out with the sources */
     queue *toProcess = sources;
@@ -74,14 +85,44 @@ void topologicalSort(graph *g, queue* sources)
     {
         node *v = getQueueNode(toProcess);
         toProcess = dequeue(toProcess);
-        printf("%d\n", v->id);
-
+        sorted[id++] = v->id; 
 
         /* Handles all adjacent nodes later by putting them in toProcess */
-        for(i = 0 ; i < v->outDegree; i++)
+        for(i = 0 ; i < v->outDegree; i++) /* On max, does E iterations */
         {
-            if(--v->edges[i]->inDegree == 0)
+            /* Decrements child vertexes. If one now has inDegree 0, it's processed */
+            if(--v->edges[i]->inDegree == 0) 
                 toProcess = enqueue(toProcess, v->edges[i]);
         }
     }
+
+    return sorted;
+}
+
+/* Applies DAG relaxation algorithm to find longest path.
+All edges have weight = 1 */
+int getLongest(graph *g, int *topSorted)
+{
+    int i, j, max = 0;
+
+    /* In topological order */
+    for(i = 0; i < V; i++)
+    {
+        int id = topSorted[i];
+        node *s = g->nodes[id];
+
+        for(j = 0; j < s->outDegree; j++)
+        {
+            /* Is the current path to child longer? If yes, update it */
+            if(s->edges[j]->distance < s->distance + 1)
+            {
+                s->edges[j]->distance = s->distance + 1;
+                if(s->edges[j]->distance > max)
+                    max = s->edges[j]->distance;
+            }
+        }
+    }
+
+    /* Source domino falling counts towards longest path */
+    return max+1;
 }
