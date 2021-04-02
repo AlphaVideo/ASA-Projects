@@ -101,7 +101,7 @@ queue *enqueue(queue* head, node* n)
     return new;
 }
 
-/*Returns node at the front*/
+/* Free queue at the front, updates tail */
 queue *dequeue(queue* head)
 {
     queue *prev;
@@ -122,6 +122,7 @@ queue *dequeue(queue* head)
     return head;
 }
 
+/* Returns front node */
 node *getQueueNode(queue* head)
 {
     node *u;

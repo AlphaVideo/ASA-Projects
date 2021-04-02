@@ -37,17 +37,7 @@ int main()
 
     /* Nodes with inDegree = 0 are sources and will be counted for the output */
     sources = setSources(Graph, sources);
-    /*topologicalSort(Graph, sources);*/
-
-    while(sources != NULL)
-    {
-        node* v;
-        v = getQueueNode(sources);
-        sources = dequeue(sources);
-        if(v != NULL)
-            printf("%d\n", v->id);
-
-    }
+    topologicalSort(Graph, sources);
 
     return 0;
 }
@@ -79,17 +69,11 @@ void topologicalSort(graph *g, queue* sources)
     /* The processing queue will start out with the sources */
     queue *toProcess = sources;
 
-    while (sources != NULL)
-    {
-        printf("CHEGUEI %d", sources->n->id);
-    }
-    
-
-
     /* While stack isn't empty */
     while(toProcess != NULL)
     {
-        node *v = dequeue(toProcess);
+        node *v = getQueueNode(toProcess);
+        toProcess = dequeue(toProcess);
         printf("%d\n", v->id);
 
 
