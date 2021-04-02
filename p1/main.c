@@ -190,7 +190,7 @@ node* newNode(int V)
     new->inDegree = 0;
     new->relaxed = 0;
     new->distance = INF;
-    new->edges = NULL;
+    new->edges = malloc(sizeof(node*)*V);
 
     return new;    
 }
@@ -202,20 +202,9 @@ void addEdge(graph* g, int u, int v)
 {
     g->nodes[u]->outDegree++;
     g->nodes[v]->inDegree++;
-
-    if(g->nodes[u]->edges == NULL)
-    {
-        g->nodes[u]->edges = malloc(sizeof(node*) * g->nodes[u]->outDegree);
-        g->nodes[u]->edges[0] = g->nodes[v];
-    }
-    else
-    {
-        g->nodes[u]->edges = realloc(g->nodes[u]->edges, g->nodes[u]->outDegree);
-        g->nodes[u]->edges[g->nodes[u]->outDegree - 1] = g->nodes[v];
-    }
-
-    
+    g->nodes[u]->edges[g->nodes[u]->outDegree - 1] = g->nodes[v];
 }
+
 
 /*Adds a node to the FIFO*/
 queue *enqueue(queue* head, node* n)
@@ -238,6 +227,7 @@ queue *enqueue(queue* head, node* n)
 
     return new;
 }
+
 
 /* Free queue at the front, updates tail */
 queue *dequeue(queue* head)

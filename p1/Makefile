@@ -3,7 +3,7 @@
 
 CC   = gcc
 LD   = gcc
-CFLAGS = -g -O3 -ansi -Wall
+CFLAGS = -g  -O3 -ansi -Wall
 LDFLAGS=-lm
 
 # A phony target is one that is not really the name of a file
