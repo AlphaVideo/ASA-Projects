@@ -59,25 +59,6 @@ void addEdge(graph* g, int u, int v)
     
 }
 
-/* Free stack head, replaces with next in line */
-stack *pop(stack* head)
-{
-    stack* temp = head->next;
-    free(head);
-
-    return temp;
-}
-
-/*Adds node to the LIFO */
-stack *push(stack* head, node* n)
-{
-    stack* new = malloc(sizeof(stack));
-    new->n = n;
-    new->next = head;
-
-    return new;
-}
-
 /*Adds a node to the FIFO*/
 queue *enqueue(queue* head, node* n)
 {   

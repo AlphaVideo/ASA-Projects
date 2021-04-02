@@ -15,11 +15,6 @@ typedef struct graph {
     node **nodes;
 } graph;
 
-typedef struct stack {
-    node *n;
-    struct stack *next;
-} stack;
-
 typedef struct queue {
     node *n;
     struct queue *next;
@@ -30,9 +25,6 @@ typedef struct queue {
 graph* initGraph(int V);
 node* newNode(int V);
 void addEdge(graph* g, int u, int v);
-
-stack *pop(stack* head);
-stack *push(stack* head, node* node);
 
 queue *enqueue(queue* head, node* n);
 queue *dequeue(queue* head);

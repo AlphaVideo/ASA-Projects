@@ -12,14 +12,11 @@ LDFLAGS=-lm
 
 all: project
 
-project:  main.o graph.o
-	$(LD) $(CFLAGS) $(LDFLAGS) -o project  main.o graph.o
+project:  main.o 
+	$(LD) $(CFLAGS) $(LDFLAGS) -o project  main.o 
 
 main.o: main.c 
 	$(CC) $(CFLAGS) -o main.o -c main.c
-
-graph.o: graph.c graph.h
-	$(CC) $(CFLAGS) -o graph.o -c graph.c
 
 clean:
 	@echo Cleaning...
