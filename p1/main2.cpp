@@ -17,7 +17,7 @@ class Node
     int inDegree;
     int outDegree;
     int distance;
-    vector<int> edges;
+    vector<int> edges; //Stores child indexes
 
     Node()
     {
@@ -82,6 +82,7 @@ int main()
     //Nodes with inDegree = 0 are sources and will be counted for the output
     sources = graph.setSources();
 
+    //Topological sort uses a queue with the sources as it's starting point
     topSorted = topologicalSort(graph, sources);
 
     longest = getLongest(graph, topSorted);
