@@ -7,7 +7,6 @@ typedef struct node {
     int id;
     int inDegree;
     int outDegree;
-    int relaxed;
     int distance;
     struct node **edges;
 } node;
@@ -30,8 +29,7 @@ int V; /* Number of vertexes */
 int E; /* Number of edges */
 int nSources = 0; /* Output 1 */
 int longest = 0; /* Output 2 */
-int ID = 1;
-int queueInit = 0;
+unsigned int ID = 0;
 queue *tail = NULL;
 
 
@@ -44,13 +42,14 @@ int getLongest(graph *g, int *topSorted);
 
 /* Structure functions */
 
-graph* initGraph(int V);
-node* newNode(int V);
+graph* initGraph(int vertex);
+node* newNode(int vertex);
 void addEdge(graph* g, int u, int v);
 
 queue *enqueue(queue* head, node* n);
 queue *dequeue(queue* head);
 node *getQueueNode(queue* head);
+void destroyGraph(graph *g);
 
 
 int main()
@@ -59,7 +58,7 @@ int main()
     scanf("%d %d", &V, &E);
     graph *Graph = initGraph(V);
     queue *sources = NULL;
-    int *topSorted = NULL;
+    int *topSorted = NULL; 
 
     /* Input parsing */
     for(i = 0; i < E; i++)
@@ -77,11 +76,15 @@ int main()
 
     /* Nodes with inDegree = 0 are sources and will be counted for the output */
     sources = setSources(Graph, sources);
+
     topSorted = topologicalSort(Graph, sources);
 
     longest = getLongest(Graph, topSorted);
 
     printf("%d %d\n", nSources, longest);
+
+    destroyGraph(Graph);
+    free(topSorted);
 
     return 0;
 }
@@ -91,7 +94,7 @@ Sets distance to 0 and increments global counter. */
 queue* setSources(graph* g, queue* sources)
 {
     int i;
-    for(i = 1; i <= V; i++)
+    for(i = 0; i < V; i++)
     {
         if(g->nodes[i]->inDegree == 0)
         {
@@ -122,7 +125,8 @@ int* topologicalSort(graph *g, queue* sources)
     {
         node *v = getQueueNode(toProcess);
         toProcess = dequeue(toProcess);
-        sorted[id++] = v->id; 
+        sorted[id] = v->id;
+        id++; 
 
         /* Handles all adjacent nodes later by putting them in toProcess */
         for(i = 0 ; i < v->outDegree; i++) /* On max, does E iterations */
@@ -132,7 +136,6 @@ int* topologicalSort(graph *g, queue* sources)
                 toProcess = enqueue(toProcess, v->edges[i]);
         }
     }
-
     return sorted;
 }
 
@@ -165,32 +168,28 @@ int getLongest(graph *g, int *topSorted)
 }
 
 /* Creates a graph struct with V vertexes */
-graph* initGraph(int V)
+graph* initGraph(int vertex)
 {
     int i;
-    V++; /* Starting index is seen as 1 */
     graph *new = malloc(sizeof(graph));
-    new->nodes = malloc(sizeof(node*) * V);
-    new->nodes[0] = NULL; 
+    new->nodes = malloc(sizeof(node*) * vertex);
 
-    for(i = 1; i < V; i++)
-        new->nodes[i] = newNode(V);
+    for(i = 0; i < vertex; i++)
+        new->nodes[i] = newNode(vertex);
 
     return new;
 }
 
 
 /* Aux function that creates a "blank" node */
-node* newNode(int V)
+node* newNode(int vertex)
 {
-    V++; /* Starting index is seen as 1 */
     node *new = malloc(sizeof(node));
     new->id = ID++;
     new->outDegree = 0;
     new->inDegree = 0;
-    new->relaxed = 0;
     new->distance = INF;
-    new->edges = malloc(sizeof(node*)*V);
+    new->edges = malloc(sizeof(node*)*vertex);
 
     return new;    
 }
@@ -200,6 +199,10 @@ node* newNode(int V)
 Updates in and out degrees. */
 void addEdge(graph* g, int u, int v)
 {
+    /* Real indexes are one less */
+    u = u - 1;
+    v = v - 1;
+
     g->nodes[u]->outDegree++;
     g->nodes[v]->inDegree++;
     g->nodes[u]->edges[g->nodes[u]->outDegree - 1] = g->nodes[v];
@@ -209,56 +212,79 @@ void addEdge(graph* g, int u, int v)
 /*Adds a node to the FIFO*/
 queue *enqueue(queue* head, node* n)
 {   
-    queue* new = (queue*) malloc(sizeof(struct node));
+    queue* new = (queue*) malloc(sizeof(struct queue));
     new->n = n;
-    new->next = head;
-    new->previous = NULL;
     
-    /* Second from the back is updated */
-    if(head != NULL)
-        head->previous = new;
-
-    /* Starts up tail */
-    if(!queueInit)
+    if(head == NULL) /* Init */
     {
+        new->next = NULL;
+        new->previous = NULL;
+
+        head = new;
+        tail = head;
+    }
+    else if (head == tail) /* Head is updated, tail will be different from head */
+    {
+        new->next = NULL;
+        new->previous = head;
         tail = new;
-        queueInit = 1;
+
+        head->next = tail;
+    }
+    else /* Update through tail for speeeed */
+    {
+        queue *prev = tail->previous;
+        
+        tail = new;
+        prev->next = tail;
     }
 
-    return new;
+    return head;
 }
 
 
 /* Free queue at the front, updates tail */
 queue *dequeue(queue* head)
 {
-    queue *prev;
-
-    /* When there's only 1 element */
-    if(tail == head)
+    if(head == NULL)
+        return NULL;
+    else if(tail == head)
     {
         free(head);
+        tail = NULL;
         return NULL;
     }
-    
-    prev = tail->previous;
-    free(tail);
-    prev->next = NULL;
-
-    tail = prev;
-
-    return head;
+    else
+    {
+        queue* next = head->next;
+        next->previous = NULL;
+        head = next;
+        return head;
+    }
 }
 
 /* Returns front node */
 node *getQueueNode(queue* head)
 {
     node *u;
-    if(tail != NULL)
+    if(head != NULL)
     {
-        u = tail->n;
+        u = head->n;
         return u;
     }
     else
         return NULL;
+}
+
+/* Frees remaining memory */
+void destroyGraph(graph *g)
+{
+    int i;
+    for(i = 0; i < V; i++)
+    {
+        free(g->nodes[i]->edges);
+        free(g->nodes[i]);
+    }
+    free(g->nodes);
+    free(g);
 }
