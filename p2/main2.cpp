@@ -6,8 +6,6 @@ using namespace std;
 
 // ~*~*~*~*~*~*~*~*~* Constants *~*~*~*~*~*~*~*~*~*~
 
-enum Direction {NONE, UV, VU};
-
 //Source and target indexes
 int source = 0; //Processor X
 int target = 0; //Processor Y
@@ -22,14 +20,12 @@ class Graph
 
     int V;
     int E;
-    int nextEdge;
     int **nodes;
 
     Graph(int v, int e)
     {
         V = v;
         E = e;
-        nextEdge = 0;
 
         nodes = new int*[V];
         
@@ -82,23 +78,6 @@ int main()
         graph.addEdge(u, v, c);
     }
 
-    // for(Edge e : graph.edges)
-    // {
-    //     printf("Start: %d  End: %d   Capacity:%d   Flow:%d   Direction:%d\n", e.u, e.v, e.capacity, e.flow, e.d);
-    // }
-
-    // int path[graph.V];
-
-    // if(BFS(graph, path))
-    //     puts("Yay");
-    // else
-    //     puts("Nay");
-    
-    // for(int i: path)
-    // {
-    //     printf("%d\n", i);
-    // }
-
     int minimumCost = edmondsKarp(graph);
     printf("%d\n", minimumCost);
         
@@ -128,7 +107,7 @@ bool BFS(Graph g, pair<int, int> path[])
     q.push(source);
     visited[source] = true; //Each vertex is only visited once
     path[source].first = NIL;
-    path[source].second = 0; //Path saves the parent that accessed them and edge used
+    path[source].second = 0; //Path saves the parent that accessed them and the capacity used
     
     while(!q.empty())
     {
@@ -138,24 +117,16 @@ bool BFS(Graph g, pair<int, int> path[])
         for(int v = 0; v < g.V; v++)
         {
             int cap = g.nodes[u][v];
-            if(cap == 0)
-                continue;
 
             //v must not be visited and edge must not be full
+            if(cap == 0)
+                continue;
             if(!visited[v]) 
             {
                 if(v == target) //Exit condition
                 {
                     path[v].first = u; //v was visited by u
                     path[v].second = cap; //Visit had this cap
-
-                    // for(pair<int, int> current = path[g.V-1]; current.first != NIL; current = path[current.first])
-                    // {
-                    //     printf(" Parent:%d  EdgeU:%d  EdgeV:%d  Capacity:%d  Flow:%d  Direction:%d  Available:%d  Dir:%d\n", current.first, 
-                    //     g.edges[current.second].u, g.edges[current.second].v ,g.edges[current.second].capacity, g.edges[current.second].flow,
-                    //     g.edges[current.second].d, g.edges[current.second].getAvailableFlow(dir), dir);
-                    // }
-                    // printf("\n");
 
                     return true;
                 }
@@ -185,30 +156,12 @@ int edmondsKarp(Graph g)
 
     while(BFS(g, path))
     {
-
-        // for(pair<int,int> pair : path)
-        // {
-        //     printf(" Parent:%d Cap:%d|", pair.first, pair.second );
-        // }
-        // printf("\n");
-
-        // printf("Matrix before push:\n");
-        // for(int i = 0; i < g.V; i++)
-        // {
-        //     for(int j = 0; j < g.V; j++)
-        //         printf(" %d", g.nodes[i][j]);
-        //     printf("\n");
-        // }
-    
-
         int minimum = findPathMinimum(g, path);
-        // printf(" Min:%d \n", minimum);
-        // printf("Pushing: %d\n", minimum);
         g.pushPathFlow(path, minimum);
         maxFlow += minimum;
     }
 
-    return maxFlow;
+    return maxFlow; 
 }
 
 /* Returns the least amount of flow you can push through the path */
@@ -243,22 +196,10 @@ void Graph::pushPathFlow(pair<int,int> path[], int n)
         if(parent == NIL)
             parent = 0;
 
-        // puts("\nNew path");
-        // printf("Parent:%d  Child:%d\n", parent, child );
-
-        nodes[parent][child] -= n;
-        nodes[child][parent] += n;
+        nodes[parent][child] -= n; //Available capacity updated
+        nodes[child][parent] += n; //Reflux updated
 
         child = current.first;
-
-        // printf("Matrix after push:\n");
-        // for(int i = 0; i < V; i++)
-        // {
-        //     for(int j = 0; j < V; j++)
-        //         printf(" %d", nodes[i][j]);
-        //     printf("\n");
-        // }
     }
-
 }
 
