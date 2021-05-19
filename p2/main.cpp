@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-#include <utility>
 
 using namespace std;
 
@@ -233,6 +232,9 @@ bool BFS(Graph g, pair<int, int> path[])
             int v = g.edges[e].getOppositeEnd(u);
             Direction dir = g.edges[e].getDirection(v);
 
+            int available = g.edges[e].getAvailableFlow(dir);
+            printf("U: %d  V: %d  Dir: %d  Available: %d\n", u, v, dir, available);
+
             //v must not be visited and edge must not be full
             if(!visited[v] && g.edges[e].canPush(dir)) 
             {
@@ -240,6 +242,14 @@ bool BFS(Graph g, pair<int, int> path[])
                 {
                     path[v].first = u; //v was visited by u
                     path[v].second = e; //Visit used edge e
+
+                    for(pair<int, int> current = path[g.V-1]; current.first != NIL; current = path[current.first])
+                    {
+                        printf(" Parent:%d  EdgeU:%d  EdgeV:%d  Capacity:%d  Flow:%d  Direction:%d  Available:%d  Dir:%d\n", current.first, 
+                        g.edges[current.second].u, g.edges[current.second].v ,g.edges[current.second].capacity, g.edges[current.second].flow,
+                        g.edges[current.second].d, g.edges[current.second].getAvailableFlow(dir), dir);
+                    }
+                    printf("\n");
 
                     return true;
                 }
@@ -270,12 +280,13 @@ int edmondsKarp(Graph g)
     while(BFS(g, path))
     {
 
-        for(Edge e : g.edges)
-        {
-            printf("Start: %d  End: %d   Capacity:%d   Flow:%d   Direction:%d\n", e.u, e.v, e.capacity, e.flow, e.d);
-        }
+        // for(Edge e : g.edges)
+        // {
+        //     printf("Start: %d  End: %d   Capacity:%d   Flow:%d   Direction:%d\n", e.u, e.v, e.capacity, e.flow, e.d);
+        // }
 
         int minimum = findPathMinimum(g, path);
+        printf("Pushing: %d\n", minimum);
         g.pushPathFlow(path, minimum);
         maxFlow += minimum;
 
