@@ -204,6 +204,8 @@ int Edge::getAvailableFlow(Direction dir)
 //Returns the direction of the flow when given starting vertex
 Direction Edge::getDirection(int start)
 {
+    if(d == NONE)
+        return NONE;
     if(start == u)
         return UV;
     else
@@ -230,10 +232,10 @@ bool BFS(Graph g, pair<int, int> path[])
         for(int e : g.nodes[u].edges)
         {
             int v = g.edges[e].getOppositeEnd(u);
-            Direction dir = g.edges[e].getDirection(v);
+            Direction dir = g.edges[e].getDirection(u);
 
-            int available = g.edges[e].getAvailableFlow(dir);
-            printf("U: %d  V: %d  Dir: %d  Available: %d\n", u, v, dir, available);
+            // int available = g.edges[e].getAvailableFlow(dir);
+            // printf("U: %d  V: %d  Dir: %d  Available: %d\n", u, v, dir, available);
 
             //v must not be visited and edge must not be full
             if(!visited[v] && g.edges[e].canPush(dir)) 
@@ -243,13 +245,13 @@ bool BFS(Graph g, pair<int, int> path[])
                     path[v].first = u; //v was visited by u
                     path[v].second = e; //Visit used edge e
 
-                    for(pair<int, int> current = path[g.V-1]; current.first != NIL; current = path[current.first])
-                    {
-                        printf(" Parent:%d  EdgeU:%d  EdgeV:%d  Capacity:%d  Flow:%d  Direction:%d  Available:%d  Dir:%d\n", current.first, 
-                        g.edges[current.second].u, g.edges[current.second].v ,g.edges[current.second].capacity, g.edges[current.second].flow,
-                        g.edges[current.second].d, g.edges[current.second].getAvailableFlow(dir), dir);
-                    }
-                    printf("\n");
+                    // for(pair<int, int> current = path[g.V-1]; current.first != NIL; current = path[current.first])
+                    // {
+                    //     printf(" Parent:%d  EdgeU:%d  EdgeV:%d  Capacity:%d  Flow:%d  Direction:%d  Available:%d  Dir:%d\n", current.first, 
+                    //     g.edges[current.second].u, g.edges[current.second].v ,g.edges[current.second].capacity, g.edges[current.second].flow,
+                    //     g.edges[current.second].d, g.edges[current.second].getAvailableFlow(dir), dir);
+                    // }
+                    // printf("\n");
 
                     return true;
                 }
@@ -286,7 +288,7 @@ int edmondsKarp(Graph g)
         // }
 
         int minimum = findPathMinimum(g, path);
-        printf("Pushing: %d\n", minimum);
+        // printf("Pushing: %d\n", minimum);
         g.pushPathFlow(path, minimum);
         maxFlow += minimum;
 
